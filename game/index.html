@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>LD 48 Deeper and deeper</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link rel="stylesheet" href="css/game.css">
+		<link rel="stylesheet" href="css/hint.css">
+		<link rel="stylesheet" href="css/font-awesome.min.css">
+
+		<script src="lib/jquery.min.js"></script>
+		<script src="lib/howler.min.js"></script>
+		<script src="lib/minibars.min.js"></script>
+		<script src="lib/u-pathastar.js"></script>
+		<script src="lib/u-threestage.js"></script>
+		<script src="lib/u-helper.js"></script>
+
+		<script src="js/levels.js"></script>
+		<script src="js/map.js"></script>
+		<script src="js/player.js"></script>
+		<script src="js/game.js"></script>
+		<script src="js/keyboard.js"></script>
+	</head>
+	<body>
+
+		<nav>
+			LD 48 :: Deeper and deeper
+		</nav>
+
+		<footer>
+			<div id="frame-rate">0fps</div>
+		</footer>
+
+		<script>
+
+		Stage = {};
+
+		</script>
+
+		<script type="module">
+		import { THREE, EffectComposer, Shaders } from './js/pipeline.js';
+
+		Game.feature_size = 10;
+
+		var debug_sf = 0.95;
+
+		//$( window ).on('unload', GameState.save);
+		$(function() {
+			Stage = ThreeStage.create({
+				THREE : THREE,
+				smoothScroll : 0.85,
+			});
+			Game.init(Stage, $('#frame-rate'));
+			Stage.start();
+
+			Stage.geo = {
+				dirt : new THREE.BoxBufferGeometry( Game.feature_size*debug_sf, Game.feature_size*debug_sf, Game.feature_size*debug_sf ),
+				limit : new THREE.BoxBufferGeometry( Game.feature_size*1.0, Game.feature_size*1.0, Game.feature_size*1.0 ),
+				player : new THREE.SphereBufferGeometry( Game.feature_size*0.45 ),
+				exit : new THREE.OctahedronGeometry( Game.feature_size*0.45 ),
+				boulder : new THREE.DodecahedronGeometry( Game.feature_size*0.45 ),
+				lava : new THREE.BoxBufferGeometry(
+					Game.feature_size*debug_sf, Game.feature_size*debug_sf, Game.feature_size*debug_sf ),
+			}
+
+			Stage.mat = {
+				dirt : new THREE.MeshStandardMaterial( {
+					color: 0xaaaa77, metalness : 0.5, roughness : 0.5, } ),
+				limit : new THREE.MeshStandardMaterial( {
+					color: 0xffffff, metalness : 0.25, roughness : 0.25, } ),
+				player : new THREE.MeshStandardMaterial( {
+					color: 0x888800, emissive: 0x888800, metalness : 0.5, roughness : 0.5, } ),
+				exit : new THREE.MeshStandardMaterial( {
+					color: 0xff00ff, metalness : 0.25, roughness : 0.25, } ),
+				boulder : new THREE.MeshStandardMaterial( {
+					color: 0xaaaa88, metalness : 0.15, roughness : 0.5, } ),
+				lava : new THREE.MeshStandardMaterial( {
+					color: 0xff8844, emissive : 0xff8844, metalness : 0.15, roughness : 0.5, } ),
+			}
+
+			GameMap.init('level_03');
+
+			$(window).on('keydown', function(e) {
+				if(Game.state.user_input) {
+					if(e.key == 'w') Player.move_by(0, -1);
+					if(e.key == 'a') Player.move_by(-1, 0);
+					if(e.key == 's') Player.move_by(0, 1);
+					if(e.key == 'd') Player.move_by(1, 0);
+				}
+				if(e.key == 'r') GameMap.init(GameMap.current_level_name);
+			});
+
+			$(window).on('keyup', function(e) {
+			});
+
+			Stage.animate(function(dt) {
+
+				GameMap.do_animation();
+
+				Game.state.player.cx = Game.state.player.x*0.2 + Game.state.player.cx*0.8;
+				Game.state.player.cy = Game.state.player.y*0.2 + Game.state.player.cy*0.8;
+
+				Stage.player.position.x = Game.state.player.cx*Game.feature_size;
+				Stage.player.position.y = Game.state.player.cy*Game.feature_size;
+
+				Stage.camera.position.z = Stage.camera.position.z*0.75 + Stage.camera.position.tz*0.25;
+
+				return(true);
+
+			});
+
+		});
+		</script>
+
+	</body>
+</html>
