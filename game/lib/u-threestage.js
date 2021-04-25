@@ -39,9 +39,11 @@ var ThreeStage = {
 				//Stage.pipeline.enable_fxaa(Stage, EffectComposer, opt);
 				//Stage.composer.addPass(new opt.SMAAPass(window.innerWidth, window.innerHeight));
 				//Stage.composer.addPass(new opt.TAARenderPass(Stage.root, Stage.camera));
-				Stage.pipeline.enable_sao(Stage, EffectComposer, opt);
+				//Stage.pipeline.enable_sao(Stage, EffectComposer, opt);
 				//Stage.pipeline.enable_ssao(Stage, EffectComposer, opt);
-				Stage.composer.addPass(new opt.UnrealBloomPass(new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.0, 0.70 ));
+				Stage.composer.addPass(
+					new opt.UnrealBloomPass(
+						new THREE.Vector2( window.innerWidth/1, window.innerHeight/1 ), 1.0125, 1.25, 0.70 ));
 				//Stage.composer.addPass(new opt.AdaptiveToneMappingPass(true, 256));
 			},
 

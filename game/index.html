@@ -44,7 +44,7 @@
 
 		Game.feature_size = 10;
 
-		var debug_sf = 0.95;
+		var debug_sf = 1.01;
 
 		//$( window ).on('unload', GameState.save);
 		$(function() {
@@ -52,52 +52,67 @@
 				THREE : THREE,
 				smoothScroll : 0.85,
 			});
+			Stage.renderer.shadowMapEnabled = true;
+			Stage.renderer.shadowMapSoft = true;
+			Stage.renderer.shadowMapType = THREE.PCFSoftShadowMap;
+			Stage.renderer.physicallyCorrectLights = true;
+			Stage.renderer.toneMapping = THREE.ReinhardToneMapping;
+			Stage.renderer.toneMappingExposure = 1.2;
+
+			Stage.pipeline.defaultSetup(Stage, EffectComposer, Shaders);
 			Game.init(Stage, $('#frame-rate'));
 			Stage.start();
 
 			Stage.geo = {
-				dirt : new THREE.BoxBufferGeometry( Game.feature_size*debug_sf, Game.feature_size*debug_sf, Game.feature_size*debug_sf ),
-				limit : new THREE.BoxBufferGeometry( Game.feature_size*1.0, Game.feature_size*1.0, Game.feature_size*1.0 ),
-				player : new THREE.SphereBufferGeometry( Game.feature_size*0.45 ),
-				exit : new THREE.OctahedronGeometry( Game.feature_size*0.45 ),
-				boulder : new THREE.DodecahedronGeometry( Game.feature_size*0.45 ),
+				dirt : new THREE.BoxBufferGeometry(
+					Game.feature_size*debug_sf, Game.feature_size*debug_sf, Game.feature_size*debug_sf ),
+				limit : new THREE.BoxBufferGeometry(
+					Game.feature_size*debug_sf, Game.feature_size*debug_sf, Game.feature_size*debug_sf ),
+				background_plane : new THREE.PlaneGeometry(
+					Game.feature_size*50, Game.feature_size*50, 1, 1 ),
+				player : new THREE.SphereBufferGeometry(
+					Game.feature_size*0.45, 32, 32 ),
+				exit : new THREE.OctahedronGeometry(
+					Game.feature_size*0.45 ),
+				boulder : new THREE.DodecahedronGeometry(
+					Game.feature_size*0.45 ),
 				lava : new THREE.BoxBufferGeometry(
 					Game.feature_size*debug_sf, Game.feature_size*debug_sf, Game.feature_size*debug_sf ),
+				projector : new THREE.CylinderBufferGeometry(
+					Game.feature_size*0.15, Game.feature_size*0.35, Game.feature_size*0.65 ),
+				ray_x : new THREE.SphereBufferGeometry(
+					Game.feature_size*0.5*debug_sf, 12, 12 ),
 			}
 
 			Stage.mat = {
 				dirt : new THREE.MeshStandardMaterial( {
-					color: 0xaaaa77, metalness : 0.5, roughness : 0.5, } ),
+					color: 0xaaaa77, metalness : 0.05, roughness : 0.5, } ),
 				limit : new THREE.MeshStandardMaterial( {
-					color: 0xffffff, metalness : 0.25, roughness : 0.25, } ),
+					color: 0x333333, metalness : 0.00, roughness : 1.0, } ),
 				player : new THREE.MeshStandardMaterial( {
 					color: 0x888800, emissive: 0x888800, metalness : 0.5, roughness : 0.5, } ),
 				exit : new THREE.MeshStandardMaterial( {
-					color: 0xff00ff, metalness : 0.25, roughness : 0.25, } ),
+					color: 0xff00ff, metalness : 0.5, emissive : 0xff00ff, emissiveIntensity : 0.2, roughness : 0.5, } ),
 				boulder : new THREE.MeshStandardMaterial( {
 					color: 0xaaaa88, metalness : 0.15, roughness : 0.5, } ),
 				lava : new THREE.MeshStandardMaterial( {
-					color: 0xff8844, emissive : 0xff8844, metalness : 0.15, roughness : 0.5, } ),
+					color: 0xff0000, emissive : 0xff4411, emissiveIntensity : 8, metalness : 0.15, roughness : 0.5, } ),
+				translucent : new THREE.MeshLambertMaterial({
+					color: 0x40f080, emissive: 0x0000f0, emissiveIntensity : 8,
+					flatShading: true, transparent: true, opacity: 0.25 }),
+				projector : new THREE.MeshStandardMaterial( {
+					color: 0x88ccff, metalness : 0.5, roughness : 0.15, } ),
+				ray_x : new THREE.MeshStandardMaterial( {
+					color: 0xff0000, emissive : 0x1166ff, emissiveIntensity : 18, metalness : 0.0, roughness : 0.5, } ),
 			}
 
-			GameMap.init('level_03');
+			GameMap.init('level_04');
 
-			$(window).on('keydown', function(e) {
-				if(Game.state.user_input) {
-					if(e.key == 'w') Player.move_by(0, -1);
-					if(e.key == 'a') Player.move_by(-1, 0);
-					if(e.key == 's') Player.move_by(0, 1);
-					if(e.key == 'd') Player.move_by(1, 0);
-				}
-				if(e.key == 'r') GameMap.init(GameMap.current_level_name);
-			});
-
-			$(window).on('keyup', function(e) {
-			});
+			Keyboard.init();
 
 			Stage.animate(function(dt) {
 
-				GameMap.do_animation();
+				GameMap.do_animation(dt);
 
 				Game.state.player.cx = Game.state.player.x*0.2 + Game.state.player.cx*0.8;
 				Game.state.player.cy = Game.state.player.y*0.2 + Game.state.player.cy*0.8;

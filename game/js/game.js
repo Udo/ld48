@@ -33,7 +33,8 @@ var Game = {
 		});
 
 		stage.on('frameinfo', function(inf) {
-			frame_info_element.text('FPS:'+inf.fps+' CPU:'+inf.threadLoadPercent+'%');
+			frame_info_element.text('FPS:'+inf.fps+' CPU:'+inf.threadLoadPercent+'% '+
+				(Game.state.player.is_ghost ? 'GHOST' : ''));
 		})
 
 	},

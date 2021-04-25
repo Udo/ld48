@@ -1,5 +1,22 @@
 Levels = {
 
+	level_00 : { // welcome
+		tiles : [
+			'XXXXPXXXX',
+			'XXXX XXXX',
+			'XXXX XXXX',
+			'XXXX XXXX',
+			'XXX---XXX',
+			'XXXX XXXX',
+			'XXXX XXXX',
+			'XXXX XXXX',
+			'XXXXEXXXX',
+		],
+		on_exit : () => {
+			GameMap.init('level_01');
+		},
+	},
+
 	level_01 : { // basics
 		tiles : [
 			'P        ',
@@ -11,39 +28,86 @@ Levels = {
 			'X  XX-XXE',
 		],
 		on_exit : () => {
-			GameMap.init('level_02');
+			GameMap.init('level_01b');
 		},
 	},
 
-	level_02 : { // boulders
+	level_01b : { // basics
 		tiles : [
-			'XXB  BP  X',
-			'BBX  BBBBB',
-			'BBXBBBBBBB',
-			'XXX XXX XX',
-			'X-BBXXX- X',
-			'X    XX- E',
+			'XXX P XXX',
+			'XXXXXXXXX',
+			'XXXXBXXXX',
+			'----X----',
+			'XXXX XXXX',
+			'XXXX XXXX',
+			'XXXXEXXXX',
+		],
+		on_exit : () => {
+			GameMap.init('level_02a');
+		},
+	},
+
+	level_02a : { // boulders and projectors
+		tiles : [
+			'XXXPXXX',
+			'>XXB-XX',
+			'XX-X-XX',
+			'XX- -XX',
+			'XX-E-XX',
+		],
+		on_exit : () => {
+			GameMap.init('level_02b');
+		},
+	},
+
+	level_02b : { // boulders and projectors
+		tiles : [
+			'XXB  BPX',
+			'> X BBBB',
+			'XXX --BX',
+			'XXX -EBX',
+			'XXX --BX',
+			'XXXXXXXX',
+			'X B ----',
+			'X X XXXX',
 		],
 		on_exit : () => {
 			GameMap.init('level_03');
 		},
 	},
 
-	level_03 : { // lava & water _________
+	level_03 : { // lava & projectors
 		tiles : [
-			'XXXXPXXXX',
-			'XXXXXXXXX',
-			'XXXXXXXXX',
-			'L      XX',
-			'XX  -  XX',
-			'XXX -E XX',
+			'XX<XPXXXX',
+			'---------',
+			'XXXX BXXX',
+			'XXXX XXXX',
+			'       XX',
+			' X  -  XX',
+			'LXX -E XX',
 		],
 		on_exit : () => {
 			GameMap.init('level_04');
 		},
 	},
 
-	level_04 : { // monsters (combat + they act in ways)
+	level_04 : { // more projectors
+		tiles : [
+			'XXXXPXXXX',
+			'XXXX XXXX',
+			'XXXX XXXX',
+			'XXXX XXXX',
+			'XXXX XXXX',
+			'XXXX XXXX',
+			'XXXX XXXX',
+			'XXXXEXXXX',
+		],
+		on_exit : () => {
+			GameMap.init('level_04');
+		},
+	},
+
+	level_05 : { // monsters (combat + they act in ways)
 		tiles : [
 			'BBBXXPXXXX',
 			'BB  BBBBBB',
