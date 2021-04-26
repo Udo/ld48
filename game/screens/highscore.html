@@ -2,10 +2,10 @@
 
 <div style="padding:16px;">
 
+	<button style="float:right" onclick="Game.hide_menu();">Downwards!</button>
+
 	<div>Your steps: <span id="m_steps_taken">-</span></div>
-
 	<br/>
-
 	<div id="m_response"></div>
 
 </div>
@@ -13,7 +13,7 @@
 <script>
 
 $('#m_steps_taken').text(Game.state.step_count);
-$.post('http://dev.openfu.com/ld/ld48/server/', {
+$.post('https://openfu.com/ld/ld48/server/', {
 		steps : Game.state.step_count,
 		client_id : localStorage.client_id,
 		level : GameMap.current_level_name,

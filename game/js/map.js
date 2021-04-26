@@ -411,7 +411,7 @@ GameMap = {
 	position_camera : () => {
 		Stage.camera.position.x = Game.feature_size * (GameMap.current_level.grid_size_x-1) * 0.5;
 		Stage.camera.position.y = -Game.feature_size * (GameMap.current_level.grid_size_y-1) * 0.5;
-		Stage.camera.position.tz = 8 * GameMap.current_level.grid_size_x;
+		Stage.camera.position.tz = 8 * Math.max(GameMap.current_level.grid_size_x, GameMap.current_level.grid_size_y);
 		Stage.camera.position.z = 1000;
 	},
 
