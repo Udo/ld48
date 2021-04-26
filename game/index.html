@@ -12,11 +12,13 @@
 
 		<script src="lib/jquery.min.js"></script>
 		<script src="lib/howler.min.js"></script>
-		<script src="lib/minibars.min.js"></script>
+		<script src="lib/macrobars.js"></script>
 		<script src="lib/u-pathastar.js"></script>
 		<script src="lib/u-threestage.js"></script>
 		<script src="lib/u-helper.js"></script>
 
+		<script src="js/audio.js"></script>
+		<script src="js/units.js"></script>
 		<script src="js/levels.js"></script>
 		<script src="js/map.js"></script>
 		<script src="js/player.js"></script>
@@ -25,13 +27,48 @@
 	</head>
 	<body>
 
-		<nav>
-			LD 48 :: Deeper and deeper
-		</nav>
-
-		<footer>
+		<footer style="display:none">
 			<div id="frame-rate">0fps</div>
 		</footer>
+
+		<div style="position:absolute;left:32px;top:16px;">
+			<div style="color:green">
+				Unearther
+			</div>
+			<div id="e-level-name" style="color:gray"></div>
+		</div>
+
+		<div id="sidebar">
+
+			<div id="step-counter" style="border-color:green;color:green;">
+
+				<span style="font-weight:bold;" id="step-counter-value">-</span>
+				<br/>
+				STEPS
+
+			</div>
+
+			<div style="opacity:0.5">
+				[<b>Z</b>] <br/>
+				Undo
+			</div>
+
+			<div style="opacity:0.5">
+				[<b>R</b>] <br/>
+				Reset
+			</div>
+
+			<div style="opacity:0.5">
+				[<b>WASD</b>]<br/>
+				Move
+			</div>
+
+			<div style="opacity:0.5">
+				[<b>M</b>] <br/>
+				Music
+			</div>
+
+		</div>
 
 		<script>
 
@@ -57,13 +94,23 @@
 			Stage.renderer.shadowMapType = THREE.PCFSoftShadowMap;
 			Stage.renderer.physicallyCorrectLights = true;
 			Stage.renderer.toneMapping = THREE.ReinhardToneMapping;
-			Stage.renderer.toneMappingExposure = 1.2;
+			Stage.renderer.toneMappingExposure = 1.35;
+			Stage.renderer.toneMappingExposureTarget = 1.35;
 
 			Stage.pipeline.defaultSetup(Stage, EffectComposer, Shaders);
 			Game.init(Stage, $('#frame-rate'));
 			Stage.start();
 
+			Stage.tex = {
+				stone_01 : new THREE.TextureLoader().load( 'img/stone_01.jpg' ),
+				dirt_03 : new THREE.TextureLoader().load( 'img/dirt_03.jpg' ),
+				face_01 : new THREE.TextureLoader().load( 'img/face01.jpg' ),
+				face_02 : new THREE.TextureLoader().load( 'img/face02.jpg' ),
+			}
+
 			Stage.geo = {
+				debug : new THREE.BoxBufferGeometry(
+					Game.feature_size*debug_sf*0.125, Game.feature_size*debug_sf*0.125, Game.feature_size*debug_sf*0.125 ),
 				dirt : new THREE.BoxBufferGeometry(
 					Game.feature_size*debug_sf, Game.feature_size*debug_sf, Game.feature_size*debug_sf ),
 				limit : new THREE.BoxBufferGeometry(
@@ -72,6 +119,8 @@
 					Game.feature_size*50, Game.feature_size*50, 1, 1 ),
 				player : new THREE.SphereBufferGeometry(
 					Game.feature_size*0.45, 32, 32 ),
+				player_foot : new THREE.BoxBufferGeometry(
+					Game.feature_size*0.30, Game.feature_size*0.60, Game.feature_size*0.30 ),
 				exit : new THREE.OctahedronGeometry(
 					Game.feature_size*0.45 ),
 				boulder : new THREE.DodecahedronGeometry(
@@ -79,24 +128,43 @@
 				lava : new THREE.BoxBufferGeometry(
 					Game.feature_size*debug_sf, Game.feature_size*debug_sf, Game.feature_size*debug_sf ),
 				projector : new THREE.CylinderBufferGeometry(
-					Game.feature_size*0.15, Game.feature_size*0.35, Game.feature_size*0.65 ),
+					Game.feature_size*0.15, Game.feature_size*0.35, Game.feature_size*0.65, 16 ),
 				ray_x : new THREE.SphereBufferGeometry(
 					Game.feature_size*0.5*debug_sf, 12, 12 ),
+				death_projector : new THREE.CylinderBufferGeometry(
+					Game.feature_size*0.15, Game.feature_size*0.35, Game.feature_size*0.65, 16 ),
+				deathray_x : new THREE.SphereBufferGeometry(
+					Game.feature_size*0.5*debug_sf, 12, 12 ),
+				gremlin : new THREE.SphereBufferGeometry(
+					Game.feature_size*0.35*debug_sf, 6, 6 ),
+				gremlin_foot : new THREE.BoxBufferGeometry(
+					Game.feature_size*0.10, Game.feature_size*0.60, Game.feature_size*0.10 ),
+				particle : new THREE.BoxBufferGeometry(
+					Game.feature_size*0.15*debug_sf, Game.feature_size*0.15*debug_sf, Game.feature_size*0.15*debug_sf ),
 			}
 
 			Stage.mat = {
+				debug : new THREE.MeshStandardMaterial( {
+					color: 0xaaaa77, emissive : 0xff11ff, emissiveIntensity : 28, metalness : 0.05, roughness : 0.5, } ),
 				dirt : new THREE.MeshStandardMaterial( {
-					color: 0xaaaa77, metalness : 0.05, roughness : 0.5, } ),
+					//bumpMap : Stage.tex.dirt_03, bumpScale : 0.5,
+					//map : Stage.tex.face_01,
+					color: 0xaaaa77, metalness : 0.00, roughness : 1.0, } ),
 				limit : new THREE.MeshStandardMaterial( {
-					color: 0x333333, metalness : 0.00, roughness : 1.0, } ),
+					//bumpMap : Stage.tex.stone_01,
+					color: 0x666666, metalness : 0.00, roughness : 1.0, } ),
 				player : new THREE.MeshStandardMaterial( {
-					color: 0x888800, emissive: 0x888800, metalness : 0.5, roughness : 0.5, } ),
+					map : Stage.tex.face_01,
+					emissiveMap : Stage.tex.face_01, emissiveIntensity : 8, emissive : 0xffffff,
+					color: 0x888800,  } ),
 				exit : new THREE.MeshStandardMaterial( {
 					color: 0xff00ff, metalness : 0.5, emissive : 0xff00ff, emissiveIntensity : 0.2, roughness : 0.5, } ),
 				boulder : new THREE.MeshStandardMaterial( {
+					bumpMap : Stage.tex.stone_01,
 					color: 0xaaaa88, metalness : 0.15, roughness : 0.5, } ),
 				lava : new THREE.MeshStandardMaterial( {
-					color: 0xff0000, emissive : 0xff4411, emissiveIntensity : 8, metalness : 0.15, roughness : 0.5, } ),
+					emissiveMap : Stage.tex.dirt_03,
+					color: 0xff0000, emissive : 0xff4411, emissiveIntensity : 28, metalness : 0.15, roughness : 0.5, } ),
 				translucent : new THREE.MeshLambertMaterial({
 					color: 0x40f080, emissive: 0x0000f0, emissiveIntensity : 8,
 					flatShading: true, transparent: true, opacity: 0.25 }),
@@ -104,9 +172,21 @@
 					color: 0x88ccff, metalness : 0.5, roughness : 0.15, } ),
 				ray_x : new THREE.MeshStandardMaterial( {
 					color: 0xff0000, emissive : 0x1166ff, emissiveIntensity : 18, metalness : 0.0, roughness : 0.5, } ),
+				death_projector : new THREE.MeshStandardMaterial( {
+					color: 0xff8800, metalness : 0.5, roughness : 0.15, } ),
+				deathray_x : new THREE.MeshStandardMaterial( {
+					color: 0xff1111, emissive : 0xff1111, emissiveIntensity : 20, metalness : 0.0, roughness : 0.5, } ),
+				gremlin : new THREE.MeshStandardMaterial( {
+					emissiveMap : Stage.tex.face_02, emissiveIntensity : 1, emissive : 0xffffff,
+					color: 0x44ff88, metalness : 0.0, roughness : 0.5, } ),
+				particle_red : new THREE.MeshStandardMaterial( {
+					emissive : 0xff0202, emissiveIntensity : 20,
+					color: 0xff0202, metalness : 0.0, roughness : 1.0, } ),
+				particle_gray : new THREE.MeshStandardMaterial( {
+					color: 0x888888, metalness : 0.2, roughness : 1.0, } ),
 			}
 
-			GameMap.init('level_04');
+			GameMap.init(localStorage.last_level || 'level_00');
 
 			Keyboard.init();
 

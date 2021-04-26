@@ -1,1 +1,36 @@
-Hello World
+<h1>Unearther</h1>
+
+<script id="lselect-template" type="text/x-minibars-template">
+	<button
+		style="min-width: 200px;"
+		onclick="Game.hide_menu();GameMap.init('{{key}}');">
+		{{idx}} {{title}}
+	</button>
+</script>
+
+<div style="padding: 12px;">
+
+	<h2>Level Select</h2>
+	<div id="level_select">
+
+	</div>
+
+</div>
+<script>
+
+var item_template = Macrobars.compile($('#lselect-template').html());
+
+var idx_counter = 0;
+each(Levels, (l, lkey) => {
+
+	idx_counter++;
+	l.idx = idx_counter;
+	l.key = lkey;
+	if(localStorage.getItem('lvl_'+lkey))
+		$('#level_select').append(item_template(l));
+
+});
+
+</script>
+
+
